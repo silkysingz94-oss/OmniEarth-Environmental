@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SILKYSINGZ GEOAI | GAMBIA OMNIEARTH INTELLIGENCE</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.2.0/turf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<style>
+:root{
+  --green:#14532d;
+  --green2:#166534;
+  --dark:#102d24;
+  --gold:#e4b84d;
+  --bg:#eef2f3;
+  --panel:#ffffff;
+  --line:#dce4e2;
+  --text:#23332e;
+  --muted:#687a73;
+  --blue:#2563eb;
+  --red:#dc2626;
+  --shadow:0 3px 12px rgba(15,45,35,.08);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow:hidden;
+}
+
+header{
+  height:76px;
+  background:linear-gradient(110deg,#0b3024,#14532d);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 22px;
+  border-bottom:4px solid var(--gold);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.flag{
+  width:45px;
+  height:29px;
+  border:1px solid #ddd;
+  background:linear-gradient(
+    to bottom,
+    #ce1126 0 32%,
+    white 32% 40%,
+    #0c8a43 40% 60%,
+    white 60% 68%,
+    #ce1126 68% 100%
+  );
+}
+
+header h1{
+  font-size:19px;
+  margin:0 0 4px;
+  letter-spacing:.5px;
+}
+
+header p{
+  margin:0;
+  color:#d8e7df;
+  font-size:11px;
+}
+
+.header-right{
+  text-align:right;
+  font-size:11px;
+  line-height:1.7;
+  color:#e5eee8;
+}
+
+.status{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#ffffff18;
+  border:1px solid #ffffff30;
+  padding:5px 9px;
+  border-radius:20px;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  background:#4ade80;
+  border-radius:50%;
+}
+
+.app{
+  height:calc(100vh - 76px);
+  display:grid;
+  grid-template-columns:310px minmax(350px,1fr) 330px;
+  gap:10px;
+  padding:10px;
+  min-height:0;
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:9px;
+  box-shadow:var(--shadow);
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.panel-heading{
+  padding:12px 14px;
+  background:#f7faf8;
+  border-bottom:1px solid var(--line);
+  font-size:12px;
+  font-weight:800;
+  color:var(--green);
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  flex-shrink:0;
+}
+
+.panel-scroll{
+  padding:12px;
+  overflow-y:auto;
+  min-height:0;
+  flex:1;
+}
+
+.section{
+  border:1px solid var(--line);
+  border-radius:7px;
+  margin-bottom:11px;
+  overflow:hidden;
+}
+
+.section-title{
+  padding:9px 10px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--green);
+  background:#f5f8f6;
+  border-bottom:1px solid var(--line);
+}
+
+.section-body{padding:10px}
+
+label{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  color:#53655e;
+  margin:0 0 5px;
+}
+
+select,input{
+  width:100%;
+  border:1px solid #ccd8d2;
+  border-radius:5px;
+  padding:8px;
+  font-size:11px;
+  background:white;
+  color:#263a31;
+  outline:none;
+  margin-bottom:9px;
+}
+
+select:focus,input:focus{
+  border-color:var(--green2);
+  box-shadow:0 0 0 2px #16653418;
+}
+
+button{
+  border:0;
+  border-radius:5px;
+  padding:9px 10px;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+
+button:hover{filter:brightness(.94)}
+
+.btn-primary{
+  background:var(--green2);
+  color:white;
+}
+
+.btn-secondary{
+  background:#e8efeb;
+  color:var(--green);
+  border:1px solid #d4e0d8;
+}
+
+.btn-danger{
+  background:#fff0f0;
+  color:#b42318;
+  border:1px solid #f2caca;
+}
+
+.btn-blue{
+  background:#eaf1ff;
+  color:#1d4ed8;
+  border:1px solid #c9d9ff;
+}
+
+.button-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+
+.button-row button{width:100%}
+
+.small-note{
+  font-size:10px;
+  line-height:1.5;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin:8px 0;
+  font-size:11px;
+  color:#40534a;
+}
+
+.check-row input{
+  width:auto;
+  margin:0;
+}
+
+.map-panel{
+  position:relative;
+  overflow:hidden;
+  min-width:0;
+}
+
+.map-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:9px 12px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  flex-shrink:0;
+}
+
+.map-topbar strong{
+  color:var(--green);
+  font-size:12px;
+}
+
+.map-topbar span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+#map{
+  flex:1;
+  min-height:0;
+  width:100%;
+  background:#e9eeee;
+}
+
+.map-legend{
+  position:absolute;
+  z-index:900;
+  left:12px;
+  bottom:24px;
+  background:#ffffffed;
+  border:1px solid #d5ded9;
+  border-radius:6px;
+  padding:9px 11px;
+  max-width:205px;
+  box-shadow:var(--shadow);
+  font-size:10px;
+  display:none;
+}
+
+.map-legend strong{
+  display:block;
+  color:var(--green);
+  margin-bottom:6px;
+}
+
+.legend-gradient{
+  height:10px;
+  width:165px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#7f3b08,#d8a52a,#f7e7a0,#6aab56,#006837);
+  margin:5px 0;
+}
+
+.legend-labels{
+  display:flex;
+  justify-content:space-between;
+  color:#52635b;
+}
+
+.map-info{
+  position:absolute;
+  z-index:900;
+  top:58px;
+  left:12px;
+  background:#ffffffed;
+  border:1px solid var(--line);
+  padding:7px 9px;
+  border-radius:5px;
+  font-size:10px;
+  max-width:230px;
+  box-shadow:var(--shadow);
+}
+
+.analytics-scroll{
+  padding:12px;
+  overflow-y:auto;
+  min-height:0;
+  flex:1;
+}
+
+.kpi-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.kpi{
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:10px;
+  background:#fbfdfb;
+  min-width:0;
+}
+
+.kpi small{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  margin-bottom:6px;
+  text-transform:uppercase;
+  font-weight:700;
+}
+
+.kpi strong{
+  font-size:18px;
+  color:var(--green);
+  display:block;
+  overflow-wrap:anywhere;
+}
+
+.kpi span{
+  font-size:9px;
+  color:#819087;
+}
+
+.chart-box{
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:10px;
+  margin-bottom:11px;
+}
+
+.chart-title{
+  font-size:11px;
+  color:var(--green);
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.chart-container{
+  position:relative;
+  height:170px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+  max-height:240px;
+  overflow-y:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:10px;
+}
+
+th,td{
+  border-bottom:1px solid #e8eeea;
+  padding:7px 6px;
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  background:#f5f8f6;
+  color:var(--green);
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+
+.badge{
+  display:inline-block;
+  border-radius:20px;
+  padding:3px 7px;
+  font-size:9px;
+  font-weight:700;
+  background:#e8f4ec;
+  color:#166534;
+}
+
+.info-box{
+  padding:9px;
+  border-radius:6px;
+  background:#f4f8f5;
+  border:1px solid #dce9df;
+  font-size:10px;
+  line-height:1.6;
+  color:#52645a;
+  overflow-wrap:anywhere;
+}
+
+.catalogue-item{
+  border-bottom:1px solid #edf1ee;
+  padding:7px 0;
+  font-size:10px;
+  line-height:1.5;
+}
+
+.catalogue-item strong{color:var(--green)}
+
+.progress{
+  height:5px;
+  background:#e7ece9;
+  border-radius:10px;
+  overflow:hidden;
+  margin:8px 0;
+}
+
+.progress div{
+  height:100%;
+  width:0;
+  background:var(--green2);
+  transition:width .3s;
+}
+
+#message{
+  padding:8px;
+  margin:8px 0;
+  font-size:10px;
+  line-height:1.5;
+  border-radius:5px;
+  display:none;
+  overflow-wrap:anywhere;
+}
+
+#message.info{display:block;background:#eff6ff;color:#1e40af}
+#message.success{display:block;background:#edfdf3;color:#166534}
+#message.error{display:block;background:#fff1f1;color:#b42318}
+
+footer{
+  padding:10px;
+  border-top:1px solid var(--line);
+  background:#f8faf9;
+  color:#63736b;
+  font-size:9px;
+  line-height:1.6;
+  flex-shrink:0;
+}
+
+footer strong{color:var(--green)}
+
+.raster-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+}
+
+.raster-controls button{width:100%}
+
+@media(max-width:1100px){
+  body{overflow:auto}
+  .app{
+    height:auto;
+    min-height:calc(100vh - 76px);
+    grid-template-columns:280px 1fr;
+    grid-template-rows:650px auto;
+  }
+  .map-panel{grid-column:2;grid-row:1}
+  .analytics-panel{grid-column:1 / -1;grid-row:2}
+}
+
+@media(max-width:700px){
+  header{height:auto;min-height:76px;padding:10px}
+  header h1{font-size:14px}
+  .header-right{display:none}
+  .app{
+    display:flex;
+    flex-direction:column;
+    height:auto;
+  }
+  .panel{min-height:450px}
+  .map-panel{height:600px}
+  .analytics-panel{min-height:700px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <div class="flag"></div>
+    <div>
+      <h1>SILKYSINGZ GEOAI | OMNIEARTH INTELLIGENCE</h1>
+      <p>Earth Observation • Geospatial Data Discovery • Environmental Intelligence</p>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="status"><span class="status-dot"></span> Standalone Web GIS</div>
+    <div>Gambia Bureau of Statistics | GIS-Cartography Unit</div>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT: CONTROLS -->
+  <aside class="panel">
+    <div class="panel-heading"><i class="fa-solid fa-sliders"></i> Controls & Data Discovery</div>
+
+    <div class="panel-scroll">
+
+      <div class="section">
+        <div class="section-title">01 · Administrative Area</div>
+        <div class="section-body">
+
+          <label>Region</label>
+          <select id="region"><option value="">Loading regions...</option></select>
+
+          <label>Local Government Area</label>
+          <select id="lga"><option value="">All LGAs</option></select>
+
+          <label>District</label>
+          <select id="district"><option value="">All districts</option></select>
+
+          <label>Ward</label>
+          <select id="ward"><option value="">All wards</option></select>
+
+          <label>Enumeration Area</label>
+          <select id="ea"><option value="">All enumeration areas</option></select>
+
+          <div class="button-row">
+            <button class="btn-primary" id="applyAOI">Apply AOI</button>
+            <button class="btn-secondary" id="resetAOI">Reset Area</button>
+          </div>
+
+          <div class="small-note">
+            Select an administrative area or enumeration area to update the map and area statistics.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">02 · Earth Observation Dataset</div>
+        <div class="section-body">
+
+          <label>Data modality / collection</label>
+          <select id="dataset">
+            <option value="sentinel2">Sentinel-2 L2A Optical</option>
+            <option value="sentinel1">Sentinel-1 SAR GRD</option>
+            <option value="landsat">Landsat 8/9 Collection 2</option>
+            <option value="hyperspectral">Hyperspectral: EnMAP / EMIT / PRISMA</option>
+            <option value="dem">Digital Elevation Model</option>
+            <option value="landcover">Land Cover / WorldCover</option>
+            <option value="soil">SoilGrids</option>
+            <option value="weather">Weather / ECMWF / GFS</option>
+            <option value="atmosphere">Atmosphere / Sentinel-5P</option>
+            <option value="fire">NASA FIRMS Active Fire</option>
+            <option value="ocean">Ocean / Sentinel-3</option>
+            <option value="altimetry">Altimetry / Sentinel-6</option>
+            <option value="precipitation">GPM / CHIRPS Precipitation</option>
+            <option value="hydrology">SMAP Hydrology</option>
+            <option value="nightlights">VIIRS Nighttime Lights</option>
+          </select>
+
+          <label>Start date</label>
+          <input type="date" id="startDate" value="2026-01-01">
+
+          <label>End date</label>
+          <input type="date" id="endDate" value="2026-11-08">
+
+          <label>Maximum cloud cover (%)</label>
+          <input type="number" id="cloudCover" min="0" max="100" value="30">
+
+          <label>Maximum scenes</label>
+          <select id="maxScenes">
+            <option>10</option>
+            <option selected>25</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
+
+          <div class="button-row">
+            <button class="btn-primary" id="runAnalysis"><i class="fa-solid fa-play"></i> Run Analysis</button>
+            <button class="btn-danger" id="clearAnalysis"><i class="fa-solid fa-rotate-left"></i> Clear Results</button>
+          </div>
+
+          <div class="progress"><div id="progressBar"></div></div>
+          <div id="message"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">03 · Thematic Satellite Raster Visualisation</div>
+        <div class="section-body">
+
+          <label>NASA GIBS raster product</label>
+          <select id="rasterProduct">
+            <option value="ndvi">MODIS Terra NDVI · 8-day</option>
+            <option value="truecolor">MODIS Terra True Colour</option>
+            <option value="lst">MODIS Terra Land Surface Temperature</option>
+            <option value="fire">MODIS Terra Thermal Anomalies</option>
+            <option value="aerosol">MODIS Terra Aerosol Optical Depth</option>
+          </select>
+
+          <label>Observation date</label>
+          <input type="date" id="rasterDate" value="2026-11-07">
+
+          <label>Raster opacity</label>
+          <input type="range" id="rasterOpacity" min="0" max="100" value="75">
+
+          <div class="check-row">
+            <input type="checkbox" id="clipRaster" checked>
+            <span>Restrict raster visibility to selected AOI</span>
+          </div>
+
+          <div class="raster-controls">
+            <button class="btn-primary" id="displayRaster">Display Raster</button>
+            <button class="btn-secondary" id="removeRaster">Remove Raster</button>
+          </div>
+
+          <div class="small-note">
+            These are NASA GIBS MODIS products. They are not Sentinel-2 10 m imagery. The AOI restriction is a visual map mask.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">04 · Map Layers & Basemap</div>
+        <div class="section-body">
+
+          <label>Basemap</label>
+          <select id="basemap">
+            <option value="satellite">Satellite</option>
+            <option value="hybrid" selected>Hybrid</option>
+            <option value="street">Street Map</option>
+            <option value="terrain">Terrain</option>
+          </select>
+
+          <div class="check-row">
+            <input type="checkbox" id="showBoundary" checked>
+            <span>Administrative boundaries</span>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="showModis">
+            <span>NASA MODIS imagery</span>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="showNight">
+            <span>NASA VIIRS nighttime imagery</span>
+          </div>
+
+          <div class="small-note">
+            The thematic raster is controlled separately in the raster visualisation section.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">05 · Environmental Services</div>
+        <div class="section-body">
+          <div class="info-box">
+            Click anywhere on the map to retrieve point-based weather information and SoilGrids soil properties.
+          </div>
+
+          <div style="height:8px"></div>
+
+          <label>Weather data source</label>
+          <select id="weatherSource">
+            <option value="openmeteo">Open-Meteo</option>
+          </select>
+
+          <label>Soil property</label>
+          <select id="soilProperty">
+            <option value="clay">Clay</option>
+            <option value="sand">Sand</option>
+            <option value="silt">Silt</option>
+            <option value="soc">Soil Organic Carbon</option>
+            <option value="phh2o">Soil pH</option>
+            <option value="nitrogen">Nitrogen</option>
+          </select>
+
+          <div class="button-row">
+            <button class="btn-blue" id="exportScenes">Export Scenes CSV</button>
+            <button class="btn-blue" id="exportBoundary">Export AOI GeoJSON</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">06 · Data Catalogue</div>
+        <div class="section-body">
+          <div class="catalogue-item"><strong>Sentinel-2:</strong> Multispectral optical imagery, surface reflectance.</div>
+          <div class="catalogue-item"><strong>Sentinel-1:</strong> C-band synthetic aperture radar.</div>
+          <div class="catalogue-item"><strong>Landsat:</strong> Multispectral optical and thermal imagery.</div>
+          <div class="catalogue-item"><strong>DEM:</strong> Elevation, terrain and slope datasets.</div>
+          <div class="catalogue-item"><strong>SoilGrids:</strong> Global soil properties and soil characteristics.</div>
+          <div class="catalogue-item"><strong>Open-Meteo:</strong> Weather and climate variables.</div>
+          <div class="catalogue-item"><strong>NASA GIBS:</strong> Global satellite imagery visualisation.</div>
+          <div class="catalogue-item"><strong>Earth Search:</strong> STAC catalogue discovery for satellite scenes.</div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- CENTRE: MAP -->
+  <main class="panel map-panel">
+    <div class="map-topbar">
+      <strong><i class="fa-solid fa-earth-africa"></i> Interactive Geospatial Map</strong>
+      <span id="mapStatus">Loading administrative boundaries...</span>
+    </div>
+
+    <div class="map-info" id="mapInfo">
+      <strong>Selected AOI</strong><br>
+      <span id="mapInfoText">The Gambia</span>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="map-legend" id="rasterLegend">
+      <strong id="legendTitle">MODIS NDVI</strong>
+      <div class="legend-gradient"></div>
+      <div class="legend-labels">
+        <span>Low</span><span>High</span>
+      </div>
+      <div class="small-note" id="legendDescription">Vegetation index visualisation</div>
+    </div>
+  </main>
+
+  <!-- RIGHT: ANALYTICS -->
+  <aside class="panel analytics-panel">
+    <div class="panel-heading"><i class="fa-solid fa-chart-line"></i> Analytics & Intelligence</div>
+
+    <div class="analytics-scroll">
+
+      <div class="section">
+        <div class="section-title">01 · Selected Area Statistics</div>
+        <div class="section-body">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <small>Selected EAs</small>
+              <strong id="kpiEAs">0</strong>
+              <span>Enumeration areas</span>
+            </div>
+
+            <div class="kpi">
+              <small>Area</small>
+              <strong id="kpiArea">0</strong>
+              <span>Square kilometres</span>
+            </div>
+
+            <div class="kpi">
+              <small>Population</small>
+              <strong id="kpiPopulation">0</strong>
+              <span>Recorded population</span>
+            </div>
+
+            <div class="kpi">
+              <small>Households</small>
+              <strong id="kpiHouseholds">0</strong>
+              <span>Recorded households</span>
+            </div>
+          </div>
+
+          <div class="info-box" id="aoiSummary">No administrative area selected.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">02 · Earth Observation Results</div>
+        <div class="section-body">
+          <div class="kpi-grid">
+            <div class="kpi">
+              <small>Scenes found</small>
+              <strong id="kpiScenes">0</strong>
+              <span>STAC catalogue results</span>
+            </div>
+
+            <div class="kpi">
+              <small>Mean cloud cover</small>
+              <strong id="kpiCloud">—</strong>
+              <span>Available scene metadata</span>
+            </div>
+
+            <div class="kpi">
+              <small>Latest acquisition</small>
+              <strong id="kpiLatest" style="font-size:12px">—</strong>
+              <span>Most recent scene</span>
+            </div>
+
+            <div class="kpi">
+              <small>Data source</small>
+              <strong id="kpiSource" style="font-size:12px">—</strong>
+              <span>Catalogue provider</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">Scene Cloud Cover Distribution</div>
+        <div class="chart-container">
+          <canvas id="sceneChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-title">Weather Observation</div>
+        <div class="chart-container">
+          <canvas id="weatherChart"></canvas>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">03 · Scene Catalogue</div>
+        <div class="section-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scene ID</th>
+                  <th>Acquisition</th>
+                  <th>Cloud %</th>
+                </tr>
+              </thead>
+              <tbody id="sceneTable">
+                <tr><td colspan="3">No scene results yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">04 · Environmental Point Information</div>
+        <div class="section-body">
+          <div class="info-box" id="environmentInfo">
+            Click on the map to retrieve weather and soil information for a location.
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">05 · Methodology & Data Notes</div>
+        <div class="section-body">
+          <div class="info-box">
+            <strong>Administrative filtering:</strong> Enumeration-area boundaries are filtered using the available administrative attributes.
+            <br><br>
+            <strong>Area statistics:</strong> Area is calculated from the selected boundary geometries. Population and household totals are aggregated from the available EA attributes.
+            <br><br>
+            <strong>STAC discovery:</strong> Sentinel-1 and Sentinel-2 searches retrieve catalogue metadata and scene records. They do not automatically render satellite raster imagery.
+            <br><br>
+            <strong>Raster visualisation:</strong> NASA GIBS provides MODIS imagery tiles. These are global visualisation products and should not be interpreted as 10 m Sentinel-2 analysis products.
+            <br><br>
+            <strong>AOI restriction:</strong> The raster mask visually hides imagery outside the selected boundary. It does not perform pixel-level scientific clipping or alter the source raster.
+            <br><br>
+            <strong>Weather:</strong> Point weather data are requested from Open-Meteo.
+            <br><br>
+            <strong>Soil:</strong> Soil property information is requested from the ISRIC SoilGrids API where available.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <strong>Produced by Ansu Singhateh</strong><br>
+      GIS Analyst | GIS-Cartography Unit | Gambia Bureau of Statistics<br>
+      SILKYSINGZ GEOAI • Research and educational use
+    </footer>
+  </aside>
+
+</div>
+
+<script>
+/* =========================================================
+   SILKYSINGZ GEOAI | GAMBIA OMNIEARTH INTELLIGENCE
+   Administrative data, STAC discovery, GIBS raster display,
+   weather, soil services, analytics and exports.
+========================================================= */
+
+const BOUNDARY_URL =
+"https://raw.githubusercontent.com/silkysingz94-oss/OmniEarth-Environmental/main/Census_EAs_Geo.json";
+
+const STAC_URL = "https://earth-search.aws.element84.com/v1/search";
+
+let allFeatures = [];
+let selectedFeatures = [];
+let boundaryLayer = null;
+let thematicRasterLayer = null;
+let modisLayer = null;
+let nightLayer = null;
+let scenes = [];
+let sceneChart = null;
+let weatherChart = null;
+let currentBasemap = null;
+let rasterMask = null;
+let mapReady = false;
+
+const $ = id => document.getElementById(id);
+
+const map = L.map("map",{
+  zoomControl:true,
+  preferCanvas:true
+}).setView([13.45,-15.45],8);
+
+/* =========================================================
+   BASEMAPS
+========================================================= */
+
+const basemaps = {
+  satellite:L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19,attribution:"Esri World Imagery"}
+  ),
+
+  street:L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {maxZoom:19,attribution:"© OpenStreetMap"}
+  ),
+
+  terrain:L.tileLayer(
+    "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    {maxZoom:17,attribution:"© OpenTopoMap"}
+  ),
+
+  hybrid:L.layerGroup([
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      {maxZoom:19,attribution:"Esri"}
+    ),
+    L.tileLayer(
+      "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+      {maxZoom:19,opacity:.9}
+    )
+  ])
+};
+
+function setBasemap(name){
+  if(currentBasemap) map.removeLayer(currentBasemap);
+  currentBasemap = basemaps[name] || basemaps.hybrid;
+  currentBasemap.addTo(map);
+
+  if(thematicRasterLayer) thematicRasterLayer.bringToFront();
+  if(rasterMask) rasterMask.bringToFront();
+  if(boundaryLayer) boundaryLayer.bringToFront();
+}
+
+$("basemap").addEventListener("change",e=>{
+  setBasemap(e.target.value);
+});
+
+setBasemap("hybrid");
+
+/* =========================================================
+   GENERAL HELPERS
+========================================================= */
+
+function numberFormat(value){
+  const n = Number(value);
+  if(!Number.isFinite(n)) return "0";
+  return Math.round(n).toLocaleString();
+}
+
+function safeNumber(value){
+  if(value === null || value === undefined || value === "") return 0;
+  const n = Number(String(value).replace(/,/g,""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function getProperty(feature,names){
+  const props = feature.properties || {};
+  for(const name of names){
+    if(props[name] !== undefined && props[name] !== null && props[name] !== ""){
+      return props[name];
+    }
+  }
+  return "";
+}
+
+function uniqueValues(features,field){
+  return [...new Set(
+    features.map(f=>String(getProperty(f,[field])).trim()).filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b));
+}
+
+function setMessage(message,type="info"){
+  const box=$("message");
+  box.className=type;
+  box.textContent=message;
+}
+
+function clearMessage(){
+  $("message").style.display="none";
+  $("message").className="";
+}
+
+function setProgress(value){
+  $("progressBar").style.width=Math.max(0,Math.min(100,value))+"%";
+}
+
+function downloadFile(filename,content,type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function formatDate(value){
+  if(!value) return "—";
+  return String(value).slice(0,10);
+}
+
+function getFeatureName(feature){
+  return getProperty(feature,["eaname","EA_NAME","name","feacode","FEACODE"]) || "Enumeration Area";
+}
+
+/* =========================================================
+   LOAD ADMINISTRATIVE JSON
+========================================================= */
+
+async function loadBoundaries(){
+  try{
+    $("mapStatus").textContent="Loading administrative data...";
+
+    const response=await fetch(BOUNDARY_URL);
+    if(!response.ok) throw new Error("GitHub returned HTTP "+response.status);
+
+    const data=await response.json();
+
+    let features=[];
+
+    if(data.type==="FeatureCollection" && Array.isArray(data.features)){
+      features=data.features;
+    }else if(data.type==="Feature"){
+      features=[data];
+    }else if(Array.isArray(data)){
+      features=data;
+    }else{
+      throw new Error("The JSON file does not contain a recognised GeoJSON structure.");
+    }
+
+    allFeatures=features.filter(f=>
+      f && f.geometry && f.properties
+    );
+
+    if(!allFeatures.length){
+      throw new Error("No valid polygon features were found.");
+    }
+
+    populateRegions();
+    applyAOI();
+
+    $("mapStatus").textContent=
+      numberFormat(allFeatures.length)+" EA boundaries loaded";
+
+    setMessage(
+      "Administrative data loaded successfully: "+
+      numberFormat(allFeatures.length)+" features.",
+      "success"
+    );
+
+    setTimeout(clearMessage,4500);
+
+  }catch(error){
+    console.error(error);
+    $("mapStatus").textContent="Boundary loading failed";
+    setMessage(
+      "Unable to load administrative JSON: "+error.message+
+      ". Check the GitHub raw URL and internet connection.",
+      "error"
+    );
+  }
+}
+
+/* =========================================================
+   ADMINISTRATIVE SELECTORS
+========================================================= */
+
+function populateSelect(id,values,placeholder){
+  const select=$(id);
+  const old=select.value;
+
+  select.innerHTML="";
+  const first=document.createElement("option");
+  first.value="";
+  first.textContent=placeholder;
+  select.appendChild(first);
+
+  values.forEach(value=>{
+    const option=document.createElement("option");
+    option.value=value;
+    option.textContent=value;
+    select.appendChild(option);
+  });
+
+  if(values.includes(old)) select.value=old;
+}
+
+function populateRegions(){
+  populateSelect(
+    "region",
+    uniqueValues(allFeatures,"RCO"),
+    "All regions"
+  );
+  updateAdministrativeSelectors();
+}
+
+function getRegionFeatures(){
+  const region=$("region").value;
+  return allFeatures.filter(f=>
+    !region || String(getProperty(f,["RCO"]))===region
+  );
+}
+
+function getLGAFeatures(){
+  const regionFeatures=getRegionFeatures();
+  const lga=$("lga").value;
+
+  return regionFeatures.filter(f=>
+    !lga || String(getProperty(f,["lganame"]))===lga
+  );
+}
+
+function getDistrictFeatures(){
+  const lgaFeatures=getLGAFeatures();
+  const district=$("district").value;
+
+  return lgaFeatures.filter(f=>
+    !district || String(getProperty(f,["distname"]))===district
+  );
+}
+
+function getWardFeatures(){
+  const districtFeatures=getDistrictFeatures();
+  const ward=$("ward").value;
+
+  return districtFeatures.filter(f=>
+    !ward || String(getProperty(f,["wardname"]))===ward
+  );
+}
+
+function updateAdministrativeSelectors(){
+  const regionFeatures=getRegionFeatures();
+
+  populateSelect(
+    "lga",
+    uniqueValues(regionFeatures,"lganame"),
+    "All LGAs"
+  );
+
+  const lgaFeatures=getLGAFeatures();
+
+  populateSelect(
+    "district",
+    uniqueValues(lgaFeatures,"distname"),
+    "All districts"
+  );
+
+  const districtFeatures=getDistrictFeatures();
+
+  populateSelect(
+    "ward",
+    uniqueValues(districtFeatures,"wardname"),
+    "All wards"
+  );
+
+  const wardFeatures=getWardFeatures();
+
+  const eaValues=[...new Set(
+    wardFeatures.map(f=>String(getProperty(f,["feacode"]))).filter(Boolean)
+  )].sort((a,b)=>a.localeCompare(b));
+
+  populateSelect("ea",eaValues,"All enumeration areas");
+}
+
+$("region").addEventListener("change",()=>{
+  $("lga").value="";
+  $("district").value="";
+  $("ward").value="";
+  $("ea").value="";
+  updateAdministrativeSelectors();
+  applyAOI();
+});
+
+$("lga").addEventListener("change",()=>{
+  $("district").value="";
+  $("ward").value="";
+  $("ea").value="";
+  updateAdministrativeSelectors();
+  applyAOI();
+});
+
+$("district").addEventListener("change",()=>{
+  $("ward").value="";
+  $("ea").value="";
+  updateAdministrativeSelectors();
+  applyAOI();
+});
+
+$("ward").addEventListener("change",()=>{
+  $("ea").value="";
+  updateAdministrativeSelectors();
+  applyAOI();
+});
+
+$("ea").addEventListener("change",applyAOI);
+
+$("applyAOI").addEventListener("click",applyAOI);
+$("resetAOI").addEventListener("click",resetAOI);
+
+/* =========================================================
+   SELECTED AREA
+========================================================= */
+
+function getFilteredFeatures(){
+  const region=$("region").value;
+  const lga=$("lga").value;
+  const district=$("district").value;
+  const ward=$("ward").value;
+  const ea=$("ea").value;
+
+  return allFeatures.filter(f=>{
+    const p=f.properties||{};
+
+    return (!region || String(p.RCO)===region) &&
+           (!lga || String(p.lganame)===lga) &&
+           (!district || String(p.distname)===district) &&
+           (!ward || String(p.wardname)===ward) &&
+           (!ea || String(p.feacode)===ea);
+  });
+}
+
+function applyAOI(){
+  if(!allFeatures.length) return;
+
+  selectedFeatures=getFilteredFeatures();
+
+  if(boundaryLayer){
+    map.removeLayer(boundaryLayer);
+    boundaryLayer=null;
+  }
+
+  if(selectedFeatures.length){
+    boundaryLayer=L.geoJSON(
+      {type:"FeatureCollection",features:selectedFeatures},
+      {
+        style:{
+          color:"#f4b942",
+          weight:1.3,
+          opacity:1,
+          fillColor:"#f4b942",
+          fillOpacity:.06
+        },
+        onEachFeature:(feature,layer)=>{
+          const name=getFeatureName(feature);
+          const code=getProperty(feature,["feacode"]) || "—";
+          const pop=getProperty(feature,["sum_pop"]) || 0;
+          const hh=getProperty(feature,["sum_hhs"]) || 0;
+
+          layer.bindPopup(
+            "<strong>"+name+"</strong><br>"+
+            "EA Code: "+code+"<br>"+
+            "Population: "+numberFormat(pop)+"<br>"+
+            "Households: "+numberFormat(hh)
+          );
+        }
+      }
+    );
+
+    if($("showBoundary").checked) boundaryLayer.addTo(map);
+
+    const bounds=boundaryLayer.getBounds();
+    if(bounds.isValid()) map.fitBounds(bounds,{padding:[25,25],maxZoom:14});
+  }
+
+  updateAreaStatistics();
+  updateMapInformation();
+  updateRasterMask();
+}
+
+function resetAOI(){
+  $("region").value="";
+  $("lga").value="";
+  $("district").value="";
+  $("ward").value="";
+  $("ea").value="";
+
+  updateAdministrativeSelectors();
+  applyAOI();
+}
+
+function updateAreaStatistics(){
+  const features=selectedFeatures;
+
+  let area=0;
+  let population=0;
+  let households=0;
+
+  features.forEach(f=>{
+    try{
+      area+=turf.area(f);
+    }catch(e){}
+
+    population+=safeNumber(getProperty(f,["sum_pop"]));
+    households+=safeNumber(getProperty(f,["sum_hhs"]));
+  });
+
+  const areaKm2=area/1000000;
+
+  $("kpiEAs").textContent=numberFormat(features.length);
+  $("kpiArea").textContent=areaKm2.toLocaleString(undefined,{maximumFractionDigits:2});
+  $("kpiPopulation").textContent=numberFormat(population);
+  $("kpiHouseholds").textContent=numberFormat(households);
+
+  const region=$("region").value || "All regions";
+  const lga=$("lga").value || "All LGAs";
+  const district=$("district").value || "All districts";
+  const ward=$("ward").value || "All wards";
+  const ea=$("ea").value || "All EAs";
+
+  $("aoiSummary").innerHTML=
+    "<strong>Selected administrative extent</strong><br>"+
+    "Region: "+region+"<br>"+
+    "LGA: "+lga+"<br>"+
+    "District: "+district+"<br>"+
+    "Ward: "+ward+"<br>"+
+    "EA: "+ea+"<br><br>"+
+    "Area: "+areaKm2.toLocaleString(undefined,{maximumFractionDigits:2})+" km²";
+}
+
+function updateMapInformation(){
+  const parts=[
+    $("region").value,
+    $("lga").value,
+    $("district").value,
+    $("ward").value,
+    $("ea").value
+  ].filter(Boolean);
+
+  $("mapInfoText").textContent=
+    parts.length ? parts.join(" / ") :
+    "The Gambia · All available EAs";
+
+  $("mapStatus").textContent=
+    numberFormat(selectedFeatures.length)+" selected features";
+}
+
+/* =========================================================
+   BOUNDARY VISIBILITY
+========================================================= */
+
+$("showBoundary").addEventListener("change",e=>{
+  if(!boundaryLayer) return;
+
+  if(e.target.checked){
+    boundaryLayer.addTo(map);
+    boundaryLayer.bringToFront();
+  }else{
+    map.removeLayer(boundaryLayer);
+  }
+});
+
+/* =========================================================
+   NASA GIBS RASTER PRODUCTS
+========================================================= */
+
+const RASTER_PRODUCTS={
+  ndvi:{
+    name:"MODIS Terra NDVI · 8-day",
+    layer:"MODIS_Terra_NDVI_8Day",
+    description:"Vegetation greenness and vegetation condition.",
+    level:9,
+    extension:"png",
+    legend:"Vegetation index visualisation"
+  },
+
+  truecolor:{
+    name:"MODIS Terra True Colour",
+    layer:"MODIS_Terra_CorrectedReflectance_TrueColor",
+    description:"Natural-colour satellite imagery.",
+    level:9,
+    extension:"jpg",
+    legend:"Natural-colour imagery"
+  },
+
+  lst:{
+    name:"MODIS Terra Land Surface Temperature",
+    layer:"MODIS_Terra_Land_Surface_Temp_Day",
+    description:"Daytime land surface temperature visualisation.",
+    level:9,
+    extension:"png",
+    legend:"Temperature visualisation"
+  },
+
+  fire:{
+    name:"MODIS Terra Thermal Anomalies",
+    layer:"MODIS_Terra_Thermal_Anomalies_All",
+    description:"Thermal anomaly and active-fire visualisation.",
+    level:9,
+    extension:"png",
+    legend:"Thermal anomaly visualisation"
+  },
+
+  aerosol:{
+    name:"MODIS Terra Aerosol",
+    layer:"MODIS_Terra_Aerosol",
+    description:"Aerosol optical depth visualisation.",
+    level:9,
+    extension:"png",
+    legend:"Aerosol visualisation"
+  }
+};
+
+function rasterTileURL(product,date){
+  const config=RASTER_PRODUCTS[product];
+
+  return "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"+
+    config.layer+"/default/"+date+
+    "/GoogleMapsCompatible_Level"+config.level+
+    "/{z}/{y}/{x}."+config.extension;
+}
+
+function displayThematicRaster(){
+  const product=$("rasterProduct").value;
+  const date=$("rasterDate").value;
+
+  if(!date){
+    setMessage("Please select an observation date.","error");
+    return;
+  }
+
+  const config=RASTER_PRODUCTS[product];
+
+  if(thematicRasterLayer){
+    map.removeLayer(thematicRasterLayer);
+  }
+
+  thematicRasterLayer=L.tileLayer(
+    rasterTileURL(product,date),
+    {
+      opacity:Number($("rasterOpacity").value)/100,
+      maxZoom:19,
+      maxNativeZoom:config.level,
+      attribution:"NASA GIBS"
+    }
+  );
+
+  thematicRasterLayer.addTo(map);
+
+  thematicRasterLayer.on("tileerror",()=>{
+    setMessage(
+      "Some NASA GIBS tiles could not be retrieved for this product/date/zoom. Try another date or product.",
+      "error"
+    );
+  });
+
+  thematicRasterLayer.on("load",()=>{
+    setMessage(
+      config.name+" raster tiles loaded. "+config.description,
+      "success"
+    );
+    setTimeout(clearMessage,5000);
+  });
+
+  $("legendTitle").textContent=config.name;
+  $("legendDescription").textContent=config.legend;
+  $("rasterLegend").style.display="block";
+
+  updateRasterMask();
+
+  if(rasterMask) rasterMask.bringToFront();
+  if(boundaryLayer && map.hasLayer(boundaryLayer)){
+    boundaryLayer.bringToFront();
+  }
+}
+
+function removeThematicRaster(){
+  if(thematicRasterLayer){
+    map.removeLayer(thematicRasterLayer);
+    thematicRasterLayer=null;
+  }
+
+  if(rasterMask){
+    map.removeLayer(rasterMask);
+    rasterMask=null;
+  }
+
+  $("rasterLegend").style.display="none";
+  setMessage("Thematic raster layer removed.","success");
+  setTimeout(clearMessage,3000);
+}
+
+$("displayRaster").addEventListener("click",displayThematicRaster);
+$("removeRaster").addEventListener("click",removeThematicRaster);
+
+$("rasterOpacity").addEventListener("input",e=>{
+  if(thematicRasterLayer){
+    thematicRasterLayer.setOpacity(Number(e.target.value)/100);
+  }
+});
+
+$("clipRaster").addEventListener("change",updateRasterMask);
+
+/* =========================================================
+   AOI MASK
+   A canvas overlay is used instead of unioning thousands
+   of EA polygons with Turf. This avoids expensive geometry
+   unions when the national extent is selected.
+========================================================= */
+
+function createRasterMask(){
+  const MaskLayer=L.Layer.extend({
+    onAdd:function(map){
+      this._map=map;
+      this._canvas=L.DomUtil.create("canvas","aoi-raster-mask");
+      this._canvas.style.position="absolute";
+      this._canvas.style.pointerEvents="none";
+      this._canvas.style.zIndex="450";
+
+      map.getContainer().appendChild(this._canvas);
+
+      map.on("move zoom resize",this._reset,this);
+      this._reset();
+    },
+
+    onRemove:function(map){
+      map.off("move zoom resize",this._reset,this);
+      if(this._canvas && this._canvas.parentNode){
+        this._canvas.parentNode.removeChild(this._canvas);
+      }
+    },
+
+    _reset:function(){
+      if(!this._map || !this._canvas) return;
+
+      const size=this._map.getSize();
+      const ratio=window.devicePixelRatio || 1;
+
+      this._canvas.width=size.x*ratio;
+      this._canvas.height=size.y*ratio;
+      this._canvas.style.width=size.x+"px";
+      this._canvas.style.height=size.y+"px";
+      this._canvas.style.left="0px";
+      this._canvas.style.top="0px";
+
+      const ctx=this._canvas.getContext("2d");
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+
+      ctx.clearRect(0,0,size.x,size.y);
+
+      if(!$("clipRaster").checked || !selectedFeatures.length){
+        return;
+      }
+
+      // Cover the map outside the selected geometry.
+      ctx.fillStyle="#eef2f3";
+      ctx.fillRect(0,0,size.x,size.y);
+
+      // Cut out the selected AOI to reveal the raster underneath.
+      ctx.globalCompositeOperation="destination-out";
+
+      selectedFeatures.forEach(feature=>{
+        drawFeatureGeometry(ctx,feature.geometry);
+      });
+
+      ctx.globalCompositeOperation="source-over";
+    }
+  });
+
+  return new MaskLayer();
+}
+
+function drawFeatureGeometry(ctx,geometry){
+  if(!geometry) return;
+
+  const drawRing=ring=>{
+    if(!ring || !ring.length) return;
+
+    ring.forEach((coordinate,index)=>{
+      const point=map.latLngToContainerPoint([
+        coordinate[1],
+        coordinate[0]
+      ]);
+
+      if(index===0) ctx.moveTo(point.x,point.y);
+      else ctx.lineTo(point.x,point.y);
+    });
+
+    ctx.closePath();
+  };
+
+  ctx.beginPath();
+
+  if(geometry.type==="Polygon"){
+    geometry.coordinates.forEach(drawRing);
+  }else if(geometry.type==="MultiPolygon"){
+    geometry.coordinates.forEach(polygon=>{
+      polygon.forEach(drawRing);
+    });
+  }else if(geometry.type==="GeometryCollection"){
+    geometry.geometries.forEach(g=>drawFeatureGeometry(ctx,g));
+  }
+
+  ctx.fill("evenodd");
+}
+
+function updateRasterMask(){
+  if(!thematicRasterLayer){
+    if(rasterMask){
+      map.removeLayer(rasterMask);
+      rasterMask=null;
+    }
+    return;
+  }
+
+  if(!$("clipRaster").checked){
+    if(rasterMask){
+      map.removeLayer(rasterMask);
+      rasterMask=null;
+    }
+    return;
+  }
+
+  if(!rasterMask){
+    rasterMask=createRasterMask();
+    rasterMask.addTo(map);
+  }
+
+  rasterMask._reset();
+
+  if(boundaryLayer && map.hasLayer(boundaryLayer)){
+    boundaryLayer.bringToFront();
+  }
+}
+
+/* Keep mask aligned during map navigation */
+map.on("moveend zoomend",()=>{
+  if(rasterMask) rasterMask._reset();
+});
+
+/* =========================================================
+   EXISTING NASA MODIS AND VIIRS LAYERS
+========================================================= */
+
+function createGibsLayer(layer,date,level=9,extension="png",opacity=.75){
+  const url=
+    "https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/"+
+    layer+"/default/"+date+
+    "/GoogleMapsCompatible_Level"+level+
+    "/{z}/{y}/{x}."+extension;
+
+  return L.tileLayer(url,{
+    opacity,
+    maxZoom:19,
+    maxNativeZoom:level,
+    attribution:"NASA GIBS"
+  });
+}
+
+function updateLegacyLayers(){
+  if(modisLayer){
+    map.removeLayer(modisLayer);
+    modisLayer=null;
+  }
+
+  if(nightLayer){
+    map.removeLayer(nightLayer);
+    nightLayer=null;
+  }
+
+  if($("showModis").checked){
+    modisLayer=createGibsLayer(
+      "MODIS_Terra_CorrectedReflectance_TrueColor",
+      $("rasterDate").value || "2026-11-07",
+      9,"jpg",.75
+    );
+    modisLayer.addTo(map);
+  }
+
+  if($("showNight").checked){
+    nightLayer=createGibsLayer(
+      "VIIRS_SNPP_DayNightBand_ENCC",
+      $("rasterDate").value || "2026-11-07",
+      8,"png",.8
+    );
+    nightLayer.addTo(map);
+  }
+
+  if(thematicRasterLayer) thematicRasterLayer.bringToFront();
+  if(rasterMask) rasterMask.bringToFront();
+  if(boundaryLayer && map.hasLayer(boundaryLayer)){
+    boundaryLayer.bringToFront();
+  }
+}
+
+$("showModis").addEventListener("change",updateLegacyLayers);
+$("showNight").addEventListener("change",updateLegacyLayers);
+
+/* =========================================================
+   STAC COLLECTION DISCOVERY
+========================================================= */
+
+const DATASET_CONFIG={
+  sentinel2:{
+    collections:["sentinel-2-l2a"],
+    title:"Sentinel-2 L2A"
+  },
+  sentinel1:{
+    collections:["sentinel-1-grd"],
+    title:"Sentinel-1 GRD"
+  },
+  landsat:{
+    collections:["landsat-c2-l2"],
+    title:"Landsat Collection 2"
+  }
+};
+
+function getSearchBounds(){
+  if(!selectedFeatures.length) return [-16.9,13.0,-13.7,13.9];
+
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+
+  selectedFeatures.forEach(f=>{
+    try{
+      const b=turf.bbox(f);
+      minX=Math.min(minX,b[0]);
+      minY=Math.min(minY,b[1]);
+      maxX=Math.max(maxX,b[2]);
+      maxY=Math.max(maxY,b[3]);
+    }catch(e){}
+  });
+
+  if(!Number.isFinite(minX)){
+    return [-16.9,13.0,-13.7,13.9];
+  }
+
+  return [minX,minY,maxX,maxY];
+}
+
+async function searchSTAC(){
+  const dataset=$("dataset").value;
+  const config=DATASET_CONFIG[dataset];
+
+  if(!config){
+    setMessage(
+      "The selected dataset is listed in the catalogue, but this dashboard currently performs STAC scene searches only for Sentinel-1, Sentinel-2 and Landsat. Use the raster and environmental services for their supported visualisations.",
+      "info"
+    );
+    scenes=[];
+    updateSceneAnalytics();
+    return;
+  }
+
+  const start=$("startDate").value;
+  const end=$("endDate").value;
+
+  if(!start || !end){
+    throw new Error("Please specify both start and end dates.");
+  }
+
+  if(start>end){
+    throw new Error("Start date must be earlier than or equal to end date.");
+  }
+
+  const bounds=getSearchBounds();
+  const limit=Number($("maxScenes").value);
+  const cloud=Number($("cloudCover").value);
+
+  const body={
+    collections:config.collections,
+    bbox:bounds,
+    datetime:start+"T00:00:00Z/"+end+"T23:59:59Z",
+    limit:Math.min(Math.max(limit,1),100),
+    sortby:[{field:"properties.datetime",direction:"desc"}]
+  };
+
+  if(dataset==="sentinel2"){
+    body.query={"eo:cloud_cover":{"lte":cloud}};
+  }
+
+  setProgress(25);
+
+  const response=await fetch(STAC_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+
+  if(!response.ok){
+    const errorText=await response.text();
+    throw new Error(
+      "STAC request failed ("+response.status+"): "+
+      errorText.slice(0,250)
+    );
+  }
+
+  const result=await response.json();
+
+  scenes=(result.features || []).map(feature=>{
+    const properties=feature.properties||{};
+    return {
+      id:feature.id || "Unknown",
+      date:properties.datetime || "",
+      cloud:properties["eo:cloud_cover"] ??
+            properties["cloud_cover"] ?? null,
+      collection:feature.collection || config.collections[0],
+      platform:properties.platform || "",
+      geometry:feature.geometry,
+      assets:feature.assets || {}
+    };
+  });
+
+  updateSceneAnalytics();
+  setProgress(100);
+
+  setMessage(
+    scenes.length+
+    " scene records discovered from "+config.title+
+    ". This is catalogue metadata, not raster imagery rendering.",
+    "success"
+  );
+
+  setTimeout(()=>{
+    setProgress(0);
+    clearMessage();
+  },6000);
+}
+
+/* =========================================================
+   SCENE ANALYTICS
+========================================================= */
+
+function updateSceneAnalytics(){
+  $("kpiScenes").textContent=numberFormat(scenes.length);
+
+  const cloudValues=scenes
+    .map(s=>Number(s.cloud))
+    .filter(v=>Number.isFinite(v));
+
+  const meanCloud=cloudValues.length ?
+    cloudValues.reduce((a,b)=>a+b,0)/cloudValues.length : null;
+
+  $("kpiCloud").textContent=
+    meanCloud===null ? "—" : meanCloud.toFixed(1)+"%";
+
+  const sorted=[...scenes].sort((a,b)=>
+    String(b.date).localeCompare(String(a.date))
+  );
+
+  $("kpiLatest").textContent=
+    sorted.length ? formatDate(sorted[0].date) : "—";
+
+  $("kpiSource").textContent=
+    scenes.length ? scenes[0].collection : "—";
+
+  const tbody=$("sceneTable");
+  tbody.innerHTML="";
+
+  if(!scenes.length){
+    tbody.innerHTML="<tr><td colspan='3'>No scene results.</td></tr>";
+  }else{
+    scenes.forEach(scene=>{
+      const tr=document.createElement("tr");
+
+      const td1=document.createElement("td");
+      td1.textContent=scene.id;
+
+      const td2=document.createElement("td");
+      td2.textContent=formatDate(scene.date);
+
+      const td3=document.createElement("td");
+      td3.textContent=scene.cloud===null ? "—" :
+        Number(scene.cloud).toFixed(1);
+
+      tr.append(td1,td2,td3);
+      tbody.appendChild(tr);
+    });
+  }
+
+  const cloudBins=[
+    {label:"0–10%",min:0,max:10},
+    {label:"10–20%",min:10,max:20},
+    {label:"20–30%",min:20,max:30},
+    {label:"30–50%",min:30,max:50},
+    {label:"50–100%",min:50,max:101}
+  ];
+
+  const counts=cloudBins.map(bin=>
+    cloudValues.filter(v=>v>=bin.min && v<bin.max).length
+  );
+
+  if(sceneChart) sceneChart.destroy();
+
+  sceneChart=new Chart($("sceneChart"),{
+    type:"bar",
+    data:{
+      labels:cloudBins.map(b=>b.label),
+      datasets:[{
+        label:"Scene count",
+        data:counts,
+        backgroundColor:"#23764b",
+        borderRadius:4
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true,ticks:{precision:0}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+
+/* =========================================================
+   RUN AND CLEAR ANALYSIS
+========================================================= */
+
+async function runAnalysis(){
+  try{
+    if(!selectedFeatures.length){
+      setMessage("No selected administrative features are available.","error");
+      return;
+    }
+
+    $("runAnalysis").disabled=true;
+    $("runAnalysis").textContent="Searching...";
+
+    setProgress(10);
+    setMessage("Preparing selected-area data discovery...","info");
+
+    await searchSTAC();
+
+  }catch(error){
+    console.error(error);
+    setMessage(error.message,"error");
+    setProgress(0);
+  }finally{
+    $("runAnalysis").disabled=false;
+    $("runAnalysis").innerHTML='<i class="fa-solid fa-play"></i> Run Analysis';
+  }
+}
+
+function clearAnalysis(){
+  scenes=[];
+  updateSceneAnalytics();
+
+  $("kpiScenes").textContent="0";
+  $("kpiCloud").textContent="—";
+  $("kpiLatest").textContent="—";
+  $("kpiSource").textContent="—";
+
+  $("environmentInfo").textContent=
+    "Click on the map to retrieve weather and soil information.";
+
+  setProgress(0);
+  clearMessage();
+}
+
+$("runAnalysis").addEventListener("click",runAnalysis);
+$("clearAnalysis").addEventListener("click",clearAnalysis);
+
+/* =========================================================
+   CSV AND GEOJSON EXPORTS
+========================================================= */
+
+$("exportScenes").addEventListener("click",()=>{
+  if(!scenes.length){
+    setMessage("No scene records are available to export.","error");
+    return;
+  }
+
+  const rows=[
+    ["Scene ID","Acquisition Date","Cloud Cover","Collection","Platform"],
+    ...scenes.map(s=>[
+      s.id,
+      s.date,
+      s.cloud===null ? "" : s.cloud,
+      s.collection,
+      s.platform
+    ])
+  ];
+
+  const csv=rows.map(row=>
+    row.map(value=>'"'+String(value??"").replace(/"/g,'""')+'"').join(",")
+  ).join("\n");
+
+  downloadFile("GBoS_OmniEarth_Scene_Catalogue.csv",csv,"text/csv");
+});
+
+$("exportBoundary").addEventListener("click",()=>{
+  if(!selectedFeatures.length){
+    setMessage("No selected area available for export.","error");
+    return;
+  }
+
+  const geojson={
+    type:"FeatureCollection",
+    features:selectedFeatures
+  };
+
+  downloadFile(
+    "GBoS_Selected_AOI.geojson",
+    JSON.stringify(geojson,null,2),
+    "application/geo+json"
+  );
+});
+
+/* =========================================================
+   WEATHER POINT QUERY
+========================================================= */
+
+async function queryWeather(lat,lon){
+  const url=
+    "https://api.open-meteo.com/v1/forecast"+
+    "?latitude="+lat+
+    "&longitude="+lon+
+    "&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m"+
+    "&daily=temperature_2m_max,temperature_2m_min,precipitation_sum"+
+    "&timezone=Africa%2FBanjul";
+
+  const response=await fetch(url);
+
+  if(!response.ok){
+    throw new Error("Weather service returned HTTP "+response.status);
+  }
+
+  return await response.json();
+}
+
+function updateWeatherChart(data){
+  if(weatherChart) weatherChart.destroy();
+
+  const daily=data.daily || {};
+
+  weatherChart=new Chart($("weatherChart"),{
+    type:"line",
+    data:{
+      labels:daily.time || [],
+      datasets:[
+        {
+          label:"Maximum temperature °C",
+          data:daily.temperature_2m_max || [],
+          borderColor:"#dc6b32",
+          backgroundColor:"#dc6b3220",
+          tension:.3
+        },
+        {
+          label:"Minimum temperature °C",
+          data:daily.temperature_2m_min || [],
+          borderColor:"#2563eb",
+          backgroundColor:"#2563eb20",
+          tension:.3
+        }
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{position:"bottom",labels:{boxWidth:8,font:{size:9}}}
+      },
+      scales:{
+        x:{ticks:{font:{size:8},maxTicksLimit:5}},
+        y:{ticks:{font:{size:9}}}
+      }
+    }
+  });
+}
+
+/* =========================================================
+   SOILGRIDS POINT QUERY
+========================================================= */
+
+async function querySoil(lat,lon){
+  const property=$("soilProperty").value;
+
+  const url=
+    "https://rest.isric.org/soilgrids/v2.0/properties/query"+
+    "?lon="+lon+
+    "&lat="+lat+
+    "&property="+property+
+    "&depth=0-5cm"+
+    "&value=mean";
+
+  const response=await fetch(url);
+
+  if(!response.ok){
+    throw new Error("SoilGrids returned HTTP "+response.status);
+  }
+
+  return await response.json();
+}
+
+function extractSoilValue(data){
+  try{
+    const layers=data.properties.layers;
+    if(!layers || !layers.length) return "No value returned";
+
+    const layer=layers[0];
+    const depth=layer.depths && layer.depths[0];
+    const value=depth && depth.values && depth.values.mean;
+
+    return value===undefined || value===null ?
+      "No value returned" : value;
+  }catch(e){
+    return "No value returned";
+  }
+}
+
+/* =========================================================
+   MAP CLICK: WEATHER AND SOIL
+========================================================= */
+
+map.on("click",async event=>{
+  const lat=event.latlng.lat;
+  const lon=event.latlng.lng;
+
+  $("environmentInfo").innerHTML=
+    "<strong>Location</strong><br>"+
+    "Latitude: "+lat.toFixed(5)+"<br>"+
+    "Longitude: "+lon.toFixed(5)+
+    "<br><br>Retrieving environmental data...";
+
+  try{
+    const weather=await queryWeather(lat,lon);
+    const current=weather.current || {};
+
+    updateWeatherChart(weather);
+
+    let weatherHtml=
+      "<strong>Weather observation</strong><br>"+
+      "Temperature: "+(current.temperature_2m ?? "—")+" °C<br>"+
+      "Relative humidity: "+(current.relative_humidity_2m ?? "—")+"%<br>"+
+      "Precipitation: "+(current.precipitation ?? "—")+" mm<br>"+
+      "Wind speed: "+(current.wind_speed_10m ?? "—")+" km/h<br>"+
+      "Observation time: "+(current.time ?? "—");
+
+    $("environmentInfo").innerHTML=weatherHtml;
+
+  }catch(error){
+    console.error(error);
+    $("environmentInfo").innerHTML=
+      "<strong>Weather service</strong><br>"+
+      "Unable to retrieve weather information: "+
+      error.message;
+  }
+
+  try{
+    const soil=await querySoil(lat,lon);
+    const value=extractSoilValue(soil);
+
+    $("environmentInfo").innerHTML+=
+      "<br><br><strong>SoilGrids point information</strong><br>"+
+      "Property: "+$("soilProperty").selectedOptions[0].text+
+      "<br>Depth: 0–5 cm"+
+      "<br>Mean value: "+value;
+
+  }catch(error){
+    console.error(error);
+
+    $("environmentInfo").innerHTML+=
+      "<br><br><strong>SoilGrids</strong><br>"+
+      "Soil information unavailable: "+error.message;
+  }
+});
+
+/* =========================================================
+   DATASET CHANGE INFORMATION
+========================================================= */
+
+$("dataset").addEventListener("change",()=>{
+  const value=$("dataset").value;
+  const config=DATASET_CONFIG[value];
+
+  if(config){
+    setMessage(
+      config.title+
+      " is configured for STAC catalogue discovery.",
+      "info"
+    );
+  }else{
+    setMessage(
+      "This modality is included in the dataset catalogue. Its dedicated processing or raster service is not configured in this standalone version.",
+      "info"
+    );
+  }
+});
+
+/* =========================================================
+   MAP AND LAYER ORDER
+========================================================= */
+
+map.on("overlayadd",()=>{
+  if(rasterMask) rasterMask.bringToFront();
+  if(boundaryLayer && map.hasLayer(boundaryLayer)){
+    boundaryLayer.bringToFront();
+  }
+});
+
+map.on("moveend",()=>{
+  if(rasterMask) rasterMask._reset();
+});
+
+/* =========================================================
+   INITIALISE
+========================================================= */
+
+async function initialise(){
+  $("startDate").max="2026-11-08";
+  $("endDate").max="2026-11-08";
+  $("rasterDate").max="2026-11-08";
+
+  await loadBoundaries();
+
+  mapReady=true;
+}
+
+initialise();
+
+</script>
+</body>
+</html>
